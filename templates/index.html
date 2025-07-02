@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Captura de Boleta</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 2em; }
+    video, canvas { max-width: 100%; height: auto; }
+    button {
+      padding: 1em 2em;
+      font-size: 1.2em;
+      border-radius: 8px;
+      border: none;
+      background: #007BFF;
+      color: white;
+      margin-top: 1em;
+    }
+    button:active {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>Toma una foto de la boleta</h1>
+  <video id="video" autoplay playsinline></video>
+  <br>
+  <button id="capture">Tomar foto</button>
+  <form id="fotoForm" action="/accion" method="post">
+    <input type="hidden" name="imagen" id="imagen">
+    <br>
+    <button type="submit">Enviar foto</button>
+  </form>
+  <canvas id="canvas" style="display:none;"></canvas>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureBtn = document.getElementById('capture');
+    const imagenInput = document.getElementById('imagen');
+
+    navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: { exact: "environment" } } 
+    })
+    .then(stream => {
+      video.srcObject = stream;
+    })
+    .catch(err => {
+      console.warn("No se pudo usar la cámara trasera, usando cualquiera:", err);
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
+        })
+        .catch(err2 => {
+          alert("Error accediendo a la cámara: " + err2);
+        });
+    });
+
+    captureBtn.addEventListener('click', () => {
+      const context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const dataURL = canvas.toDataURL('image/jpeg');
+      imagenInput.value = dataURL;
+      alert("Foto capturada, ahora envíala.");
+    });
+  </script>
+</body>
+</html>
