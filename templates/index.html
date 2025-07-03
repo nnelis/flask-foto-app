@@ -22,16 +22,15 @@
   </style>
 </head>
 <body>
-  <h1>Toma una foto de la boleta</h1>
+  <!-- Aquí va tu bloque -->
+  <button id="startCamera">Iniciar cámara</button>
   <video id="video" autoplay playsinline></video>
-  <br>
+  <canvas id="canvas" style="display:none;"></canvas>
   <button id="capture">Tomar foto</button>
-  <form id="fotoForm" action="/accion" method="post">
+  <form action="/accion" method="post">
     <input type="hidden" name="imagen" id="imagen">
-    <br>
     <button type="submit">Enviar foto</button>
   </form>
-  <canvas id="canvas" style="display:none;"></canvas>
 
   <script>
     const video = document.getElementById('video');
@@ -39,21 +38,16 @@
     const captureBtn = document.getElementById('capture');
     const imagenInput = document.getElementById('imagen');
 
-    navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: { exact: "environment" } } 
-    })
-    .then(stream => {
-      video.srcObject = stream;
-    })
-    .catch(err => {
-      console.warn("No se pudo usar la cámara trasera, usando cualquiera:", err);
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
-          video.srcObject = stream;
-        })
-        .catch(err2 => {
-          alert("Error accediendo a la cámara: " + err2);
-        });
+    document.getElementById('startCamera').addEventListener('click', () => {
+      navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" }
+      })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => {
+        alert("Error accediendo a la cámara: " + err);
+      });
     });
 
     captureBtn.addEventListener('click', () => {
@@ -61,8 +55,7 @@
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const dataURL = canvas.toDataURL('image/jpeg');
-      imagenInput.value = dataURL;
+      imagenInput.value = canvas.toDataURL('image/jpeg');
       alert("Foto capturada, ahora envíala.");
     });
   </script>
