@@ -22,32 +22,49 @@
   </style>
 </head>
 <body>
-  <!-- Aquí va tu bloque -->
-  <button id="startCamera">Iniciar cámara</button>
+  <h1>Toma una foto de la boleta</h1>
+
   <video id="video" autoplay playsinline></video>
   <canvas id="canvas" style="display:none;"></canvas>
-  <button id="capture">Tomar foto</button>
+
+  <button id="capture" disabled>Tomar foto</button>
   <form action="/accion" method="post">
     <input type="hidden" name="imagen" id="imagen">
-    <button type="submit">Enviar foto</button>
+    <button type="submit" disabled id="enviarFoto">Enviar foto</button>
   </form>
+
+  <button id="startCamera" style="display:none;">Iniciar cámara</button>
 
   <script>
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const captureBtn = document.getElementById('capture');
+    const enviarBtn = document.getElementById('enviarFoto');
+    const startCameraBtn = document.getElementById('startCamera');
     const imagenInput = document.getElementById('imagen');
 
-    document.getElementById('startCamera').addEventListener('click', () => {
+    function iniciarCamara() {
       navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment" }
       })
       .then(stream => {
         video.srcObject = stream;
+        captureBtn.disabled = false;
+        enviarBtn.disabled = false;
       })
       .catch(err => {
-        alert("Error accediendo a la cámara: " + err);
+        console.warn("No se pudo iniciar cámara automáticamente. Se requiere interacción.");
+        startCameraBtn.style.display = 'inline-block';
       });
+    }
+
+    window.addEventListener('load', () => {
+      iniciarCamara();
+    });
+
+    startCameraBtn.addEventListener('click', () => {
+      iniciarCamara();
+      startCameraBtn.style.display = 'none';
     });
 
     captureBtn.addEventListener('click', () => {
